@@ -10,12 +10,12 @@ def compute_fidelity_score(incident):
 
     fidelity = round(fidelity, 4)
 
-    if fidelity > 0.75:
+    if fidelity > 0.85:
         severity = "Critical"
     elif fidelity > 0.5:
-        severity = "High"
-    else:
         severity = "Medium"
+    else:
+        severity = "Low"
 
     return fidelity, severity
 

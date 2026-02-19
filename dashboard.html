@@ -185,14 +185,9 @@
             color: var(--danger-color);
         }
 
-        .badge.high {
-            background-color: rgba(249, 115, 22, 0.2);
-            color: #f97316; /* Orange */
-        }
-
         .badge.medium {
-            background-color: rgba(59, 130, 246, 0.2);
-            color: #3b82f6; /* Blue */
+            background-color: rgba(245, 158, 11, 0.2);
+            color: var(--warning-color);
         }
 
         .badge.low {
@@ -256,7 +251,7 @@
 
 <header>
     <div class="logo">
-        🛡️ ACIRA
+        ACIRA
         <span style="font-size: 0.875rem; font-weight: 400; color: var(--text-secondary); margin-left: 0.5rem;">Autonomous Cyber Incident Response Agent</span>
     </div>
     <div>
@@ -268,7 +263,7 @@
     
     <!-- Log Ingestion Section -->
     <div class="card">
-        <h2>📥 Log Ingestion</h2>
+        <h2>Log Ingestion</h2>
         <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
             Upload a structured JSON log file to analyze potential threats.
         </p>
@@ -280,7 +275,7 @@
 
     <!-- Playbook Section (Initially empty) -->
     <div class="card">
-        <h2>📜 Autonomous Playbook</h2>
+        <h2>Autonomous Playbook</h2>
          <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">Generated response plan for selected incident.</p>
         <div id="playbookContainer" class="playbook-content">
             Select an incident to generate a playbook.
@@ -289,7 +284,7 @@
 
     <!-- Incidents Table Section -->
     <div class="card full-width">
-        <h2>🚨 Detected Incidents</h2>
+        <h2>Detected Incidents</h2>
         <div id="statusMessage" class="alert">Analysis Complete! Incidents updated.</div>
         <div style="overflow-x: auto;">
             <table id="incidentTable">
@@ -297,7 +292,7 @@
                     <tr>
                         <th>ID</th>
                         <th>User</th>
-                        <th>Correlation Strength</th>
+                        <th>Threat Confidence</th>
                         <th>Fidelity Score</th>
                         <th>Severity</th>
                         <th>Action</th>
@@ -402,7 +397,6 @@
 
             let severityClass = "low";
             if (incident.severity === "Critical") severityClass = "critical";
-            else if (incident.severity === "High") severityClass = "high";
             else if (incident.severity === "Medium") severityClass = "medium";
 
             // Corrected accessing incident_id
