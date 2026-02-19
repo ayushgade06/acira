@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACIRA – Autonomous Cyber Incident Response</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-color: #3b82f6;
+            --accent-hover: #2563eb;
+            --border-color: #334155;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr 1fr;
+            }
+            .full-width {
+                grid-column: span 2;
+            }
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+           transform: translateY(-2px);
+           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .file-input {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #0f172a;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            box-sizing: border-box;
+        }
+
+        .file-input:focus, .file-input:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .file-input::file-selector-button {
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            margin-right: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .file-input::file-selector-button:hover {
+            background-color: var(--border-color);
+        }
+
+        button {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            font-weight: 500;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-top: 1rem;
+            width: 100%;
+        }
+
+        button:hover {
+            background-color: var(--accent-hover);
+        }
+
+        button:disabled {
+            background-color: var(--border-color);
+            cursor: not-allowed;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.875rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: rgba(255, 255, 255, 0.05);
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge.critical {
+            background-color: rgba(239, 68, 68, 0.2);
+            color: var(--danger-color);
+        }
+
+        .badge.high {
+            background-color: rgba(249, 115, 22, 0.2);
+            color: #f97316; /* Orange */
+        }
+
+        .badge.medium {
+            background-color: rgba(59, 130, 246, 0.2);
+            color: #3b82f6; /* Blue */
+        }
+
+        .badge.low {
+            background-color: rgba(16, 185, 129, 0.2);
+            color: var(--success-color);
+        }
+
+        .playbook-content {
+            background-color: #0f172a;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.875rem;
+            white-space: pre-wrap;
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            min-height: 100px;
+        }
+
+        .action-btn {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            margin-top: 0;
+            width: auto;
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .alert.danger {
+            background-color: rgba(239, 68, 68, 0.1);
+            border-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 0.5rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">
+        🛡️ ACIRA
+        <span style="font-size: 0.875rem; font-weight: 400; color: var(--text-secondary); margin-left: 0.5rem;">Autonomous Cyber Incident Response Agent</span>
+    </div>
+    <div>
+        <span class="badge low">System Active</span>
+    </div>
+</header>
+
+<div class="container">
+    
+    <!-- Log Ingestion Section -->
+    <div class="card">
+        <h2>📥 Log Ingestion</h2>
+        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+            Upload a structured JSON log file to analyze potential threats.
+        </p>
+
+        <input type="file" id="fileInput" accept=".json" class="file-input" />
+
+        <button onclick="uploadFile()" id="analyzeBtn">Analyze Uploaded Logs</button>
+    </div>
+
+    <!-- Playbook Section (Initially empty) -->
+    <div class="card">
+        <h2>📜 Autonomous Playbook</h2>
+         <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">Generated response plan for selected incident.</p>
+        <div id="playbookContainer" class="playbook-content">
+            Select an incident to generate a playbook.
+        </div>
+    </div>
+
+    <!-- Incidents Table Section -->
+    <div class="card full-width">
+        <h2>🚨 Detected Incidents</h2>
+        <div id="statusMessage" class="alert">Analysis Complete! Incidents updated.</div>
+        <div style="overflow-x: auto;">
+            <table id="incidentTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>User</th>
+                        <th>Correlation Strength</th>
+                        <th>Fidelity Score</th>
+                        <th>Severity</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--text-secondary);">No incidents detected yet. Run analysis to start.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    const API_BASE = "http://127.0.0.1:8000";
+
+    async function uploadFile() {
+        const btn = document.getElementById("analyzeBtn");
+        const originalText = btn.innerText;
+        btn.innerText = "Analyzing...";
+        btn.disabled = true;
+
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert("Please select a JSON file first.");
+            btn.innerText = originalText;
+            btn.disabled = false;
+            return;
+        }
+
+        try {
+            const text = await file.text();
+            const logs = JSON.parse(text);
+
+            const response = await fetch(`${API_BASE}/analyze`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(logs)
+            });
+
+            if (!response.ok) {
+                throw new Error("Analysis failed.");
+            }
+
+            const data = await response.json();
+            renderIncidents(data.incidents);
+
+            const statusMsg = document.getElementById("statusMessage");
+            statusMsg.style.display = "block";
+            statusMsg.innerText = `Analysis Complete! ${data.total_incidents} incidents detected.`;
+
+            if (data.total_incidents > 0) {
+                statusMsg.classList.add("danger");
+            } else {
+                statusMsg.classList.remove("danger");
+            }
+
+        } catch (error) {
+            alert("Invalid JSON file or analysis error: " + error.message);
+        } finally {
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+    }
+
+    async function loadIncidents() {
+        try {
+            const response = await fetch(`${API_BASE}/incidents`);
+            if (!response.ok) throw new Error("Failed to fetch incidents");
+            const data = await response.json();
+            renderIncidents(data);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function renderIncidents(incidents) {
+        const tableBody = document.querySelector("#incidentTable tbody");
+        tableBody.innerHTML = "";
+        
+        const statusMsg = document.getElementById("statusMessage");
+        if (incidents.length > 0) {
+            statusMsg.style.display = "block";
+            statusMsg.innerText = `Analysis Complete! ${incidents.length} incidents detected.`;
+            statusMsg.classList.add("danger");
+        } else {
+            statusMsg.classList.remove("danger");
+        }
+
+        if (incidents.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No incidents found.</td></tr>`;
+            return;
+        }
+
+        incidents.forEach(incident => {
+            const row = document.createElement("tr");
+
+            let severityClass = "low";
+            if (incident.severity === "Critical") severityClass = "critical";
+            else if (incident.severity === "High") severityClass = "high";
+            else if (incident.severity === "Medium") severityClass = "medium";
+
+            // Corrected accessing incident_id
+            row.innerHTML = `
+                <td>#${incident.incident_id}</td>
+                <td>${incident.user_id}</td>
+                <td>${incident.correlation_strength}</td>
+                <td>${incident.fidelity_score.toFixed(4)}</td>
+                <td><span class="badge ${severityClass}">${incident.severity}</span></td>
+                <td><button class="action-btn" onclick="generatePlaybook(${incident.incident_id})">Generate Plan</button></td>
+            `;
+
+            tableBody.appendChild(row);
+        });
+    }
+
+    async function generatePlaybook(id) {
+        const container = document.getElementById("playbookContainer");
+        container.innerText = "Generating playbook...";
+        
+        try {
+            const response = await fetch(`${API_BASE}/playbook/${id}`);
+            if (!response.ok) throw new Error("Failed to generate playbook");
+            const data = await response.json();
+
+            container.innerText = data.playbook;
+        } catch (error) {
+            container.innerText = "Error: " + error.message;
+        }
+    }
+
+    // Optional: Load existing incidents on page load
+    window.onload = loadIncidents;
+</script>
+
+</body> 
+</html>
