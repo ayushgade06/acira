@@ -9,11 +9,12 @@ from core.scoring import compute_fidelity_score
 from core.playbook import generate_playbook
 from fastapi.middleware.cors import CORSMiddleware
 
+
 app = FastAPI(title="ACIRA - Autonomous Cyber Incident Response Agent")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -24,23 +25,41 @@ cached_incidents = []
 
 class LogInput(BaseModel):
     user_id: str
-    ip_address: str
+    source_ip_address: str
+    destination_ip_address: str
     event_type: str
     timestamp: str
     resource_accessed: str
+    dns_query: Optional[str] = None
+    file_path: Optional[str] = None
+    file_hash: Optional[str] = None
+    username: Optional[str] = None
+    hostname: Optional[str] = None
+    geo: Optional[dict] = None
+    threat_intel_score: Optional[int] = None
+
 
 @app.post("/analyze")
 def analyze(log_data: Optional[List[LogInput]] = None):
+
     global cached_incidents
 
     if log_data:
         logs = [
             LogEvent(
                 user_id=log.user_id,
-                ip_address=log.ip_address,
+                source_ip_address=log.source_ip_address,
+                destination_ip_address=log.destination_ip_address,
                 event_type=log.event_type,
                 timestamp=log.timestamp,
-                resource_accessed=log.resource_accessed
+                resource_accessed=log.resource_accessed,
+                dns_query=log.dns_query,
+                file_path=log.file_path,
+                file_hash=log.file_hash,
+                username=log.username,
+                hostname=log.hostname,
+                geo=log.geo,
+                threat_intel_score=log.threat_intel_score
             )
             for log in log_data
         ]
@@ -76,26 +95,38 @@ def get_incidents():
 
 @app.get("/playbook/{incident_id}")
 def get_playbook(incident_id: int):
+
     for incident in cached_incidents:
         if incident["incident_id"] == incident_id:
+
             from core.correlation import Incident
             from core.ingestion import LogEvent
-            
+
             reconstructed_events = [
                 LogEvent(
                     user_id=e["user_id"],
-                    ip_address=e["ip_address"],
+                    source_ip_address=e["source_ip_address"],
+                    destination_ip_address=e["destination_ip_address"],
                     event_type=e["event_type"],
                     timestamp=e["timestamp"],
-                    resource_accessed=e["resource_accessed"]
-                ) for e in incident["events"]
+                    resource_accessed=e["resource_accessed"],
+                    dns_query=e.get("dns_query"),
+                    file_path=e.get("file_path"),
+                    file_hash=e.get("file_hash"),
+                    username=e.get("username"),
+                    hostname=e.get("hostname"),
+                    geo=e.get("geo"),
+                    threat_intel_score=e.get("threat_intel_score")
+                )
+                for e in incident["events"]
             ]
-            
+
             dummy_incident = Incident(
                 incident_id=incident["incident_id"],
                 user_id=incident["user_id"],
                 events=reconstructed_events
             )
+
             dummy_incident.avg_anomaly_score = incident["avg_anomaly_score"]
             dummy_incident.correlation_strength = incident["correlation_strength"]
 

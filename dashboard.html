@@ -245,9 +245,62 @@
             to { transform: rotate(360deg); }
         }
 
+        /* ── Full-screen Analyze Loader ── */
+        #analyzeLoader {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        #analyzeLoader.active { display: flex; }
+
+        .loader-ring {
+            width: 72px;
+            height: 72px;
+            border: 5px solid rgba(99, 179, 250, 0.15);
+            border-top-color: #60a5fa;
+            border-right-color: #a78bfa;
+            border-radius: 50%;
+            animation: spin 0.9s linear infinite;
+        }
+
+        .loader-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: 0.02em;
+        }
+
+        .loader-sub {
+            font-size: 0.825rem;
+            color: var(--text-secondary);
+            animation: pulse 1.8s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+
+
     </style>
 </head>
 <body>
+
+<!-- Analyze Loader Overlay -->
+<div id="analyzeLoader">
+    <div class="loader-ring"></div>
+    <div class="loader-text">Analyzing Logs&hellip;</div>
+    <div class="loader-sub">Running threat correlation &amp; scoring</div>
+</div>
 
 <header>
     <div class="logo">
@@ -317,6 +370,7 @@
         const originalText = btn.innerText;
         btn.innerText = "Analyzing...";
         btn.disabled = true;
+        document.getElementById("analyzeLoader").classList.add("active");
 
         const fileInput = document.getElementById("fileInput");
         const file = fileInput.files[0];
@@ -358,6 +412,7 @@
         } catch (error) {
             alert("Invalid JSON file or analysis error: " + error.message);
         } finally {
+            document.getElementById("analyzeLoader").classList.remove("active");
             btn.innerText = originalText;
             btn.disabled = false;
         }
@@ -396,10 +451,10 @@
             const row = document.createElement("tr");
 
             let severityClass = "low";
-            if (incident.severity === "Critical") severityClass = "critical";
-            else if (incident.severity === "Medium") severityClass = "medium";
+            const sev = (incident.severity || "").toLowerCase();
+            if (sev === "critical" || sev === "high") severityClass = "critical";
+            else if (sev === "medium") severityClass = "medium";
 
-            // Corrected accessing incident_id
             row.innerHTML = `
                 <td>#${incident.incident_id}</td>
                 <td>${incident.user_id}</td>

@@ -6,16 +6,29 @@ from core.scoring import compute_fidelity_score
 def generate_playbook(incident):
 
     fidelity, severity = compute_fidelity_score(incident)
-    
+
+    if incident.events:
+        first_event = incident.events[0]
+        source_ip = first_event.source_ip_address
+        destination_ip = first_event.destination_ip_address
+    else:
+        source_ip = "Unknown"
+        destination_ip = "Unknown"
+
+    # Use to_dict() (already masks only 4 required fields)
+    events_for_llm = [e.to_dict() for e in incident.events]
+
     incident_summary = {
         "incident_id": incident.incident_id,
         "user_id": incident.user_id,
-        "ip_address": incident.events[0].ip_address if incident.events else "Unknown",
+        "source_ip_address": source_ip,
+        "destination_ip_address": destination_ip,
         "avg_anomaly_score": incident.avg_anomaly_score,
         "correlation_strength": incident.correlation_strength,
         "fidelity_score": fidelity,
         "severity": severity,
-        "event_types": [e.event_type for e in incident.events]
+        "event_types": [e.event_type for e in incident.events],
+        "events": events_for_llm
     }
 
     prompt = f"""
@@ -27,19 +40,19 @@ Incident Data:
 Rules:
 - Base response ONLY on provided data.
 - If privilege_escalation and db_access are present → treat as confirmed account compromise.
-- If only login_failed + login_success → treat as suspected credential attack.
-- Reference the specific user_id and ip_address.
+- If password_change followed by transaction_initiated → treat as potential account takeover fraud.
+- Reference the specific user_id and source_ip_address.
 - If severity is Critical → provide detailed technical actions.
 - If severity is High → provide moderately detailed actions.
-- Do NOT mention malware unless explicitly indicated.
-- Do NOT say "lack of specific event types".
-- Do NOT repeat generic filler text.
+- Do NOT hallucinate additional events.
+- Do NOT mention malware unless explicitly present in data.
+- Be precise and banking-focused.
 
 Return response strictly in this format:
 
 === INCIDENT RESPONSE PLAN ===
 
-Severity: {incident_summary["severity"]}
+Severity: {severity}
 
 1. Containment:
 - Bullet points only
@@ -52,10 +65,7 @@ Severity: {incident_summary["severity"]}
 
 4. Reporting:
 - Bullet points only
-
-Be precise. Be technical. Be banking-focused.
 """
-
 
     result = subprocess.run(
         ["ollama", "run", "mistral"],
@@ -67,6 +77,7 @@ Be precise. Be technical. Be banking-focused.
     )
 
     return result.stdout.strip()
+
 
 if __name__ == "__main__":
     from core.ingestion import load_logs
