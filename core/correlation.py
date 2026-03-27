@@ -108,11 +108,14 @@ def detect_incidents(events):
     incidents = []
     incident_counter = 1
 
+    print(f"🔍 Total users: {len(user_events)}")
+
     for user, logs in user_events.items():
 
         logs.sort(key=lambda x: x.timestamp)
 
         sequence = []
+        incident_created = False 
 
         for event in logs:
 
@@ -123,6 +126,7 @@ def detect_incidents(events):
             has_pwd = any(e.event_type == "password_change" for e in sequence)
             has_txn = any(e.event_type == "transaction_initiated" for e in sequence)
 
+            # 🎯 ORIGINAL STRICT CONDITIONS
             if (has_failed and has_priv) or (has_pwd and has_txn):
 
                 incident = Incident(
@@ -135,22 +139,29 @@ def detect_incidents(events):
                 incidents.append(incident)
 
                 incident_counter += 1
+                incident_created = True  # ✅ mark so fallback does NOT double-fire
                 break
 
+        if not incident_created and len(sequence) >= 5:
+            scored = [e.anomaly_score for e in sequence if e.anomaly_score is not None]
+            if scored:  # ✅ guard against empty anomaly scores
+                avg_anomaly = sum(scored) / len(scored)
+                print(f"🔎 User {user}: seq_len={len(sequence)}, avg_anomaly={avg_anomaly:.4f}")
+
+                if avg_anomaly > 0.4:
+                    print(f"⚠️ Fallback incident created for user {user}")
+
+                    incident = Incident(
+                        incident_id=incident_counter,
+                        user_id=user,
+                        events=sequence[:5]
+                    )
+
+                    incident.calculate_metrics()
+                    incidents.append(incident)
+
+                    incident_counter += 1
+
+    print(f"🚨 Total incidents detected: {len(incidents)}")
+
     return incidents
-
-if __name__ == "__main__":
-    from core.ingestion import load_logs
-    from core.feature_engineering import extract_features
-    from core.anomaly import compute_anomaly_scores
-
-    logs = load_logs()
-    features = extract_features(logs)
-    logs = compute_anomaly_scores(logs, features)
-
-    incidents = detect_incidents(logs)
-
-    print(f"Total incidents detected: {len(incidents)}")
-
-    if incidents:
-        print(incidents[0].to_dict())

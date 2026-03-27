@@ -24,7 +24,6 @@ def generate_playbook(incident):
         "source_ip_address": source_ip,
         "destination_ip_address": destination_ip,
         "avg_anomaly_score": incident.avg_anomaly_score,
-        "correlation_strength": incident.correlation_strength,
         "fidelity_score": fidelity,
         "severity": severity,
         "event_types": [e.event_type for e in incident.events],

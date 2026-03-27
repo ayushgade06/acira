@@ -6,154 +6,319 @@
     <title>ACIRA – Autonomous Cyber Incident Response</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --text-primary: #f8fafc;
+            --bg-color: #0a0e1a;
+            --card-bg: #0f1729;
+            --card-hover: #151d31;
+            --text-primary: #f1f5f9;
             --text-secondary: #94a3b8;
             --accent-color: #3b82f6;
             --accent-hover: #2563eb;
-            --border-color: #334155;
+            --border-color: #1e293b;
             --success-color: #10b981;
             --warning-color: #f59e0b;
             --danger-color: #ef4444;
+            --info-color: #06b6d4;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
+            background: linear-gradient(135deg, var(--bg-color) 0%, #0d1220 100%);
             color: var(--text-primary);
-            margin: 0;
-            padding: 0;
+            min-height: 100vh;
             line-height: 1.6;
         }
 
+        /* Header */
         header {
-            background-color: var(--card-bg);
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-bottom: 1px solid var(--border-color);
-            padding: 1.5rem 2rem;
+            padding: 1.25rem 2rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
         }
 
         .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            font-size: 1.75rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.75rem;
+            letter-spacing: -0.5px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            display: grid;
-            gap: 2rem;
-            grid-template-columns: 1fr;
-        }
-
-        @media (min-width: 1024px) {
-            .container {
-                grid-template-columns: 1fr 1fr;
-            }
-            .full-width {
-                grid-column: span 2;
-            }
-        }
-
-        .card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-            padding: 1.5rem;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        .card:hover {
-           transform: translateY(-2px);
-           box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
-        }
-
-        h2 {
-            margin-top: 0;
+        .shield-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
             font-size: 1.25rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 1rem;
+        }
+
+        .status-indicator {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(12, 1fr);
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            grid-column: span 12;
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #0a0f1d 100%);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent-color), var(--info-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--text-secondary) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-change {
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .stat-change.up { color: var(--success-color); }
+        .stat-change.down { color: var(--danger-color); }
+
+        /* Card */
+        .card {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #0a0f1d 100%);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 1.5rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+            border-color: rgba(59, 130, 246, 0.2);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-primary);
+        }
+
+        .card-icon {
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.875rem;
+        }
+
+        /* Upload Section */
+        .upload-card {
+            grid-column: span 12;
+        }
+
+        @media (min-width: 1024px) {
+            .upload-card { grid-column: span 6; }
+            .chart-card { grid-column: span 6; }
+            .playbook-card { grid-column: span 6; }
+            .incidents-card { grid-column: span 12; }
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 1rem;
         }
 
         .file-input {
             width: 100%;
-            padding: 0.75rem;
-            background-color: #0f172a;
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            padding: 1rem;
+            background: #0a0f1d;
+            border: 2px dashed var(--border-color);
+            border-radius: 10px;
             color: var(--text-secondary);
             font-size: 0.875rem;
             cursor: pointer;
-            transition: border-color 0.2s, box-shadow 0.2s;
-            box-sizing: border-box;
+            transition: all 0.3s ease;
         }
 
-        .file-input:focus, .file-input:hover {
+        .file-input:hover {
             border-color: var(--accent-color);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+            background: rgba(59, 130, 246, 0.05);
         }
 
         .file-input::file-selector-button {
-            background-color: var(--card-bg);
-            color: var(--text-primary);
-            padding: 0.5rem 1rem;
-            border: 1px solid var(--border-color);
+            background: linear-gradient(135deg, var(--accent-color) 0%, #2563eb 100%);
+            color: white;
+            padding: 0.5rem 1.25rem;
+            border: none;
             border-radius: 6px;
             margin-right: 1rem;
             cursor: pointer;
+            font-weight: 600;
             transition: all 0.2s;
         }
 
         .file-input::file-selector-button:hover {
-            background-color: var(--border-color);
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .file-info {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 8px;
+            font-size: 0.875rem;
+            color: var(--success-color);
+            display: none;
         }
 
         button {
-            background-color: var(--accent-color);
+            background: linear-gradient(135deg, var(--accent-color) 0%, #2563eb 100%);
             color: white;
             border: none;
-            padding: 0.75rem 1.5rem;
-            font-weight: 500;
-            border-radius: 8px;
+            padding: 0.875rem 1.75rem;
+            font-weight: 600;
+            border-radius: 10px;
             cursor: pointer;
-            transition: background-color 0.2s;
-            margin-top: 1rem;
+            transition: all 0.3s ease;
             width: 100%;
+            font-size: 0.9375rem;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
 
-        button:hover {
-            background-color: var(--accent-hover);
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(59, 130, 246, 0.4);
         }
 
         button:disabled {
-            background-color: var(--border-color);
+            background: linear-gradient(135deg, #334155 0%, #1e293b 100%);
             cursor: not-allowed;
+            box-shadow: none;
+            opacity: 0.6;
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin-top: 1rem;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.875rem;
+        }
+
+        thead {
+            background: rgba(255, 255, 255, 0.03);
         }
 
         th, td {
@@ -163,197 +328,472 @@
         }
 
         th {
-            background-color: rgba(255, 255, 255, 0.05);
-            font-weight: 600;
+            font-weight: 700;
             color: var(--text-secondary);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
         }
-        
+
+        tr:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
         tr:last-child td {
             border-bottom: none;
         }
 
+        /* Badges */
         .badge {
-            padding: 0.25rem 0.75rem;
+            padding: 0.375rem 0.875rem;
             border-radius: 9999px;
             font-size: 0.75rem;
-            font-weight: 600;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
             display: inline-block;
         }
 
         .badge.critical {
-            background-color: rgba(239, 68, 68, 0.2);
-            color: var(--danger-color);
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge.critical::before {
+            background: var(--danger-color);
+        }
+
+        .badge.high {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .badge.high::before {
+            background: var(--warning-color);
         }
 
         .badge.medium {
-            background-color: rgba(245, 158, 11, 0.2);
-            color: var(--warning-color);
+            background: rgba(6, 182, 212, 0.15);
+            color: #67e8f9;
+            border: 1px solid rgba(6, 182, 212, 0.3);
+        }
+
+        .badge.medium::before {
+            background: var(--info-color);
         }
 
         .badge.low {
-            background-color: rgba(16, 185, 129, 0.2);
-            color: var(--success-color);
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
 
+        .badge.low::before {
+            background: var(--success-color);
+        }
+
+        /* Playbook */
         .playbook-content {
-            background-color: #0f172a;
-            padding: 1rem;
-            border-radius: 8px;
-            font-family: 'Fira Code', monospace;
+            background: #0a0f1d;
+            padding: 1.5rem;
+            border-radius: 10px;
             font-size: 0.875rem;
+            line-height: 1.8;
             white-space: pre-wrap;
             color: var(--text-secondary);
             border: 1px solid var(--border-color);
-            min-height: 100px;
+            min-height: 200px;
+            max-height: 450px;
+            overflow-y: auto;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
         }
 
-        .action-btn {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.75rem;
-            margin-top: 0;
-            width: auto;
-        }
-
-        .alert {
-            padding: 1rem;
-            border-radius: 8px;
-            background-color: rgba(16, 185, 129, 0.1);
-            border: 1px solid var(--success-color);
-            color: var(--success-color);
+        .playbook-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             margin-bottom: 1rem;
-            display: none;
         }
 
-        .alert.danger {
-            background-color: rgba(239, 68, 68, 0.1);
-            border-color: var(--danger-color);
-            color: var(--danger-color);
+        .pb-fullscreen-btn {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            width: auto;
+            transition: all 0.3s ease;
         }
-        
-        .loading {
-            display: inline-block;
-            width: 1rem;
-            height: 1rem;
-            border: 2px solid rgba(255,255,255,0.3);
+
+        .pb-fullscreen-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        /* Modal */
+        #playbookModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        #playbookModal.open { display: flex; }
+
+        .modal-box {
+            background: linear-gradient(135deg, var(--card-bg) 0%, #0a0f1d 100%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 900px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-toolbar span {
+            font-size: 1.125rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger-color);
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+            font-weight: 700;
+            border-radius: 8px;
+            cursor: pointer;
+            width: auto;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(239, 68, 68, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .modal-body {
+            padding: 2rem;
+            overflow-y: auto;
+            flex: 1;
+            font-size: 0.9375rem;
+            line-height: 1.9;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+        }
+
+        /* Loader */
+        #analyzeLoader {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 9999;
+            background: rgba(10, 14, 26, 0.95);
+            backdrop-filter: blur(8px);
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        #analyzeLoader.active { display: flex; }
+
+        .loader-ring {
+            width: 80px;
+            height: 80px;
+            border: 6px solid rgba(59, 130, 246, 0.1);
+            border-top-color: #60a5fa;
+            border-right-color: #a78bfa;
             border-radius: 50%;
-            border-top-color: #fff;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 0.5rem;
+            animation: spin 0.8s linear infinite;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        /* ── Full-screen Analyze Loader ── */
-        #analyzeLoader {
-            display: none;
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: rgba(15, 23, 42, 0.88);
-            backdrop-filter: blur(6px);
-            -webkit-backdrop-filter: blur(6px);
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 1.5rem;
-        }
-        #analyzeLoader.active { display: flex; }
-
-        .loader-ring {
-            width: 72px;
-            height: 72px;
-            border: 5px solid rgba(99, 179, 250, 0.15);
-            border-top-color: #60a5fa;
-            border-right-color: #a78bfa;
-            border-radius: 50%;
-            animation: spin 0.9s linear infinite;
-        }
-
         .loader-text {
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.25rem;
+            font-weight: 700;
             color: var(--text-primary);
-            letter-spacing: 0.02em;
+            letter-spacing: 0.5px;
         }
 
         .loader-sub {
-            font-size: 0.825rem;
+            font-size: 0.9375rem;
             color: var(--text-secondary);
-            animation: pulse 1.8s ease-in-out infinite;
+            animation: pulse-text 1.5s ease-in-out infinite;
         }
 
-        @keyframes pulse {
+        @keyframes pulse-text {
             0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
+            50% { opacity: 0.5; }
         }
 
+        /* Alert */
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            display: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
 
+        .alert.success {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--success-color);
+        }
 
+        .alert.danger {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger-color);
+        }
+
+        /* Action Button */
+        .action-btn {
+            padding: 0.5rem 1rem;
+            font-size: 0.8125rem;
+            width: auto;
+            background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+            font-weight: 600;
+            border-radius: 8px;
+        }
+
+        /* Chart */
+        .chart-container {
+            position: relative;
+            height: 280px;
+            margin-top: 1rem;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Skeleton */
+        .pb-skeleton {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .pb-skel-line {
+            height: 14px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-icon {
+            width: 64px;
+            height: 64px;
+            background: rgba(59, 130, 246, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2rem;
+        }
     </style>
 </head>
 <body>
 
-<!-- Analyze Loader Overlay -->
+<!-- Analyze Loader -->
 <div id="analyzeLoader">
     <div class="loader-ring"></div>
-    <div class="loader-text">Analyzing Logs&hellip;</div>
-    <div class="loader-sub">Running threat correlation &amp; scoring</div>
+    <div class="loader-text">Analyzing Security Logs</div>
+    <div class="loader-sub">Running threat correlation & ML scoring</div>
 </div>
 
 <header>
     <div class="logo">
+        <div class="shield-icon">🛡</div>
         ACIRA
-        <span style="font-size: 0.875rem; font-weight: 400; color: var(--text-secondary); margin-left: 0.5rem;">Autonomous Cyber Incident Response Agent</span>
     </div>
-    <div>
-        <span class="badge low">System Active</span>
+    <div class="status-indicator">
+        <div class="status-dot"></div>
+        <span>System Operational</span>
     </div>
 </header>
 
 <div class="container">
     
-    <!-- Log Ingestion Section -->
-    <div class="card">
-        <h2>Log Ingestion</h2>
-        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
-            Upload a structured JSON log file to analyze potential threats.
-        </p>
-
-        <input type="file" id="fileInput" accept=".json" class="file-input" />
-
-        <button onclick="uploadFile()" id="analyzeBtn">Analyze Uploaded Logs</button>
-    </div>
-
-    <!-- Playbook Section (Initially empty) -->
-    <div class="card">
-        <h2>Autonomous Playbook</h2>
-         <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">Generated response plan for selected incident.</p>
-        <div id="playbookContainer" class="playbook-content">
-            Select an incident to generate a playbook.
+    <!-- Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Incidents</div>
+            <div class="stat-value" id="statIncidents">0</div>
+            <div class="stat-change">Real-time monitoring</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-label">Avg Fidelity Score</div>
+            <div class="stat-value" id="statFidelity">0.0000</div>
+            <div class="stat-change">ML-powered accuracy</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-label">Avg Correlation</div>
+            <div class="stat-value" id="statCorrelation">0.0000</div>
+            <div class="stat-change">Pattern detection</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-label">Critical Threats</div>
+            <div class="stat-value" id="statCritical">0</div>
+            <div class="stat-change danger">Requires immediate action</div>
         </div>
     </div>
 
-    <!-- Incidents Table Section -->
-    <div class="card full-width">
-        <h2>Detected Incidents</h2>
-        <div id="statusMessage" class="alert">Analysis Complete! Incidents updated.</div>
-        <div style="overflow-x: auto;">
+    <!-- Upload Section -->
+    <div class="card upload-card">
+        <h2 class="card-title">
+            <div class="card-icon">📁</div>
+            Log Ingestion
+        </h2>
+        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1.25rem;">
+            Upload structured JSON logs for autonomous threat analysis
+        </p>
+
+        <div class="file-input-wrapper">
+            <input type="file" id="fileInput" accept=".json" class="file-input" onchange="handleFileSelect()" />
+            <div class="file-info" id="fileInfo"></div>
+        </div>
+
+        <button onclick="uploadFile()" id="analyzeBtn">
+            🔍 Analyze Security Logs
+        </button>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="card chart-card">
+        <h2 class="card-title">
+            <div class="card-icon">📊</div>
+            Severity Distribution
+        </h2>
+        <div class="chart-container">
+            <canvas id="severityChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Playbook Section -->
+    <div class="card playbook-card">
+        <div class="playbook-header">
+            <h2 class="card-title" style="margin-bottom: 0;">
+                <div class="card-icon">🤖</div>
+                Autonomous Playbook
+            </h2>
+            <button class="pb-fullscreen-btn" onclick="openPlaybookModal()">
+                ⛶ Fullscreen
+            </button>
+        </div>
+        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 1rem;">
+            AI-generated response plan for selected incident
+        </p>
+        <div id="playbookContainer" class="playbook-content">
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <p>Select an incident to generate automated response playbook</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Incidents Table -->
+    <div class="card incidents-card">
+        <h2 class="card-title">
+            <div class="card-icon">⚠️</div>
+            Detected Incidents
+        </h2>
+        <div id="statusMessage" class="alert"></div>
+        <div class="table-wrapper">
             <table id="incidentTable">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>User</th>
-                        <th>Threat Confidence</th>
+                        <th>Correlation</th>
                         <th>Fidelity Score</th>
+                        <th>Anomaly Score</th>
                         <th>Severity</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <td colspan="6" style="text-align: center; color: var(--text-secondary);">No incidents detected yet. Run analysis to start.</td>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <div class="empty-state-icon">🔍</div>
+                                <p>No incidents detected yet. Upload logs to begin analysis.</p>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -362,23 +802,89 @@
 
 </div>
 
+<!-- Playbook Modal -->
+<div id="playbookModal">
+    <div class="modal-box">
+        <div class="modal-toolbar">
+            <span>🤖 Autonomous Response Playbook</span>
+            <button class="modal-close" onclick="closePlaybookModal()">✕ Close</button>
+        </div>
+        <div class="modal-body" id="playbookModalBody"></div>
+    </div>
+</div>
+
 <script>
     const API_BASE = "http://127.0.0.1:8000";
+    let severityChart = null;
+    let lastPlaybookText = "";
+
+    // Initialize Chart
+    function initChart() {
+        const ctx = document.getElementById('severityChart').getContext('2d');
+        severityChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Critical', 'High', 'Medium', 'Low'],
+                datasets: [{
+                    data: [0, 0, 0, 0],
+                    backgroundColor: [
+                        'rgba(239, 68, 68, 0.8)',
+                        'rgba(245, 158, 11, 0.8)',
+                        'rgba(6, 182, 212, 0.8)',
+                        'rgba(16, 185, 129, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(239, 68, 68, 1)',
+                        'rgba(245, 158, 11, 1)',
+                        'rgba(6, 182, 212, 1)',
+                        'rgba(16, 185, 129, 1)'
+                    ],
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: '#94a3b8',
+                            font: { size: 12, weight: '600' },
+                            padding: 15
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    function handleFileSelect() {
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+            fileInfo.innerHTML = `✓ Selected: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+            fileInfo.style.display = 'block';
+        }
+    }
 
     async function uploadFile() {
-        const btn = document.getElementById("analyzeBtn");
-        const originalText = btn.innerText;
-        btn.innerText = "Analyzing...";
+        const btn = document.getElementById('analyzeBtn');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '⏳ Analyzing...';
         btn.disabled = true;
-        document.getElementById("analyzeLoader").classList.add("active");
+        document.getElementById('analyzeLoader').classList.add('active');
 
-        const fileInput = document.getElementById("fileInput");
+        const fileInput = document.getElementById('fileInput');
         const file = fileInput.files[0];
 
         if (!file) {
-            alert("Please select a JSON file first.");
-            btn.innerText = originalText;
+            alert('⚠️ Please select a JSON file first.');
+            btn.innerHTML = originalText;
             btn.disabled = false;
+            document.getElementById('analyzeLoader').classList.remove('active');
             return;
         }
 
@@ -387,105 +893,164 @@
             const logs = JSON.parse(text);
 
             const response = await fetch(`${API_BASE}/analyze`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(logs)
             });
 
             if (!response.ok) {
-                throw new Error("Analysis failed.");
+                throw new Error('Analysis failed with status: ' + response.status);
             }
 
             const data = await response.json();
             renderIncidents(data.incidents);
+            updateStats();
 
-            const statusMsg = document.getElementById("statusMessage");
-            statusMsg.style.display = "block";
-            statusMsg.innerText = `Analysis Complete! ${data.total_incidents} incidents detected.`;
-
-            if (data.total_incidents > 0) {
-                statusMsg.classList.add("danger");
-            } else {
-                statusMsg.classList.remove("danger");
-            }
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.style.display = 'block';
+            statusMsg.className = 'alert ' + (data.total_incidents > 0 ? 'danger' : 'success');
+            statusMsg.innerHTML = `✓ Analysis Complete! ${data.total_incidents} incidents detected from ${data.total_logs} logs.`;
 
         } catch (error) {
-            alert("Invalid JSON file or analysis error: " + error.message);
+            alert('❌ Error: ' + error.message);
+            console.error(error);
         } finally {
-            document.getElementById("analyzeLoader").classList.remove("active");
-            btn.innerText = originalText;
+            document.getElementById('analyzeLoader').classList.remove('active');
+            btn.innerHTML = originalText;
             btn.disabled = false;
         }
     }
 
-    async function loadIncidents() {
+    async function updateStats() {
         try {
-            const response = await fetch(`${API_BASE}/incidents`);
-            if (!response.ok) throw new Error("Failed to fetch incidents");
+            const response = await fetch(`${API_BASE}/stats`);
+            if (!response.ok) return;
+            
             const data = await response.json();
-            renderIncidents(data);
+            
+            document.getElementById('statIncidents').textContent = data.total_incidents;
+            document.getElementById('statFidelity').textContent = data.avg_fidelity.toFixed(4);
+            document.getElementById('statCorrelation').textContent = data.avg_correlation.toFixed(4);
+            
+            const criticalCount = (data.severity_breakdown.Critical || 0) + (data.severity_breakdown.High || 0);
+            document.getElementById('statCritical').textContent = criticalCount;
+
+            // Update chart
+            if (severityChart) {
+                severityChart.data.datasets[0].data = [
+                    data.severity_breakdown.Critical || 0,
+                    data.severity_breakdown.High || 0,
+                    data.severity_breakdown.Medium || 0,
+                    data.severity_breakdown.Low || 0
+                ];
+                severityChart.update();
+            }
         } catch (error) {
-            console.error(error);
+            console.error('Stats update failed:', error);
         }
     }
 
     function renderIncidents(incidents) {
-        const tableBody = document.querySelector("#incidentTable tbody");
-        tableBody.innerHTML = "";
-        
-        const statusMsg = document.getElementById("statusMessage");
-        if (incidents.length > 0) {
-            statusMsg.style.display = "block";
-            statusMsg.innerText = `Analysis Complete! ${incidents.length} incidents detected.`;
-            statusMsg.classList.add("danger");
-        } else {
-            statusMsg.classList.remove("danger");
-        }
+        const tableBody = document.querySelector('#incidentTable tbody');
+        tableBody.innerHTML = '';
 
         if (incidents.length === 0) {
-            tableBody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No incidents found.</td></tr>`;
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7">
+                        <div class="empty-state">
+                            <div class="empty-state-icon">✓</div>
+                            <p>No incidents found. System clean!</p>
+                        </div>
+                    </td>
+                </tr>`;
             return;
         }
 
         incidents.forEach(incident => {
-            const row = document.createElement("tr");
+            const row = document.createElement('tr');
 
-            let severityClass = "low";
-            const sev = (incident.severity || "").toLowerCase();
-            if (sev === "critical" || sev === "high") severityClass = "critical";
-            else if (sev === "medium") severityClass = "medium";
+            let severityClass = 'low';
+            const sev = (incident.severity || '').toLowerCase();
+            if (sev === 'critical') severityClass = 'critical';
+            else if (sev === 'high') severityClass = 'high';
+            else if (sev === 'medium') severityClass = 'medium';
 
             row.innerHTML = `
-                <td>#${incident.incident_id}</td>
+                <td><strong>#${incident.incident_id}</strong></td>
                 <td>${incident.user_id}</td>
                 <td>${incident.correlation_strength}</td>
                 <td>${incident.fidelity_score.toFixed(4)}</td>
+                <td>${incident.avg_anomaly_score.toFixed(4)}</td>
                 <td><span class="badge ${severityClass}">${incident.severity}</span></td>
-                <td><button class="action-btn" onclick="generatePlaybook(${incident.incident_id})">Generate Plan</button></td>
+                <td><button class="action-btn" onclick="generatePlaybook(${incident.incident_id})">🤖 Generate Plan</button></td>
             `;
 
             tableBody.appendChild(row);
         });
     }
 
+    function showPlaybookSkeleton(container) {
+        container.innerHTML = `
+            <div class="pb-skeleton">
+                <div class="pb-skel-line" style="width:60%"></div>
+                <div class="pb-skel-line" style="width:90%"></div>
+                <div class="pb-skel-line" style="width:75%"></div>
+                <div class="pb-skel-line" style="width:95%"></div>
+                <div class="pb-skel-line" style="width:65%"></div>
+                <div class="pb-skel-line" style="width:85%"></div>
+                <div class="pb-skel-line" style="width:50%"></div>
+            </div>`;
+    }
+
     async function generatePlaybook(id) {
-        const container = document.getElementById("playbookContainer");
-        container.innerText = "Generating playbook...";
-        
+        const container = document.getElementById('playbookContainer');
+        showPlaybookSkeleton(container);
+        lastPlaybookText = '';
+
         try {
             const response = await fetch(`${API_BASE}/playbook/${id}`);
-            if (!response.ok) throw new Error("Failed to generate playbook");
+            if (!response.ok) throw new Error('Failed to generate playbook');
+            
             const data = await response.json();
+            lastPlaybookText = data.playbook;
+            container.innerHTML = `<pre>${lastPlaybookText}</pre>`;
 
-            container.innerText = data.playbook;
+            const modalBody = document.getElementById('playbookModalBody');
+            if (document.getElementById('playbookModal').classList.contains('open')) {
+                modalBody.innerHTML = `<pre>${lastPlaybookText}</pre>`;
+            }
         } catch (error) {
-            container.innerText = "Error: " + error.message;
+            container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">❌</div><p>Error: ${error.message}</p></div>`;
         }
     }
 
-    // Optional: Load existing incidents on page load
-    window.onload = loadIncidents;
+    function openPlaybookModal() {
+        const modal = document.getElementById('playbookModal');
+        const modalBody = document.getElementById('playbookModalBody');
+        modalBody.innerHTML = lastPlaybookText 
+            ? `<pre>${lastPlaybookText}</pre>`
+            : '<div class="empty-state"><div class="empty-state-icon">📋</div><p>No playbook generated yet.</p></div>';
+        modal.classList.add('open');
+    }
+
+    function closePlaybookModal() {
+        document.getElementById('playbookModal').classList.remove('open');
+    }
+
+    document.getElementById('playbookModal').addEventListener('click', function(e) {
+        if (e.target === this) closePlaybookModal();
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closePlaybookModal();
+    });
+
+    // Initialize
+    window.onload = function() {
+        initChart();
+    };
 </script>
 
-</body> 
+</body>
 </html>

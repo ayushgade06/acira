@@ -129,30 +129,36 @@ def generate_logs():
     logs = []
     current_time = datetime(2026, 2, 17, 0, 0)
 
-    normal_count = int(TOTAL_LOGS * NORMAL_RATIO)
-    attack_count = TOTAL_LOGS - normal_count
+    TOTAL_LOGS = 100
+    users = [f"user_{i}" for i in range(1, 11)]
+
+    # Random distribution of logs per user
+    user_log_counts = [random.randint(5, 15) for _ in range(10)]
+
+    # Adjust to make total exactly 100
+    while sum(user_log_counts) != TOTAL_LOGS:
+        idx = random.randint(0, 9)
+        if sum(user_log_counts) > TOTAL_LOGS and user_log_counts[idx] > 1:
+            user_log_counts[idx] -= 1
+        elif sum(user_log_counts) < TOTAL_LOGS:
+            user_log_counts[idx] += 1
 
     # -------------------------
-    # Generate Normal Traffic
+    # Generate Logs Per User
     # -------------------------
-    for i in range(normal_count):
-        user_id = f"user_{random.randint(1,400)}"
-        logs.append(generate_normal_event(user_id, current_time))
-        current_time += timedelta(seconds=random.randint(5, 30))
+    for user_id, count in zip(users, user_log_counts):
+        for _ in range(count):
 
-    # -------------------------
-    # Inject Attack Sequences Randomly
-    # -------------------------
-    for _ in range(attack_count // 5):
+            if random.random() < 0.9:  # mostly normal
+                logs.append(generate_normal_event(user_id, current_time))
+            else:
+                # inject attack
+                if random.random() < 0.5:
+                    logs.extend(generate_fraud_sequence(current_time))
+                else:
+                    logs.extend(generate_bruteforce_sequence(current_time))
 
-        attack_time = current_time + timedelta(seconds=random.randint(10, 300))
-
-        if random.random() < 0.5:
-            logs.extend(generate_fraud_sequence(attack_time))
-        else:
-            logs.extend(generate_bruteforce_sequence(attack_time))
-
-        current_time += timedelta(seconds=random.randint(20, 60))
+            current_time += timedelta(seconds=random.randint(5, 30))
 
     logs.sort(key=lambda x: x["timestamp"])
     return logs
@@ -161,7 +167,7 @@ def generate_logs():
 if __name__ == "__main__":
     dataset = generate_logs()
 
-    with open("data/sample_logs.json", "w") as f:
+    with open("data/sample_logs_100.json", "w") as f:
         json.dump(dataset, f)
 
     print(f"Generated {len(dataset)} intelligent EDR + SIEM log events successfully.")

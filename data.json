@@ -1,0 +1,38 @@
+[
+    {
+    "user_id": "user_767",
+    "source_ip_address": "101.148.43.88",
+    "destination_ip_address": "10.0.0.5",
+    "mac_address": "00:1A:2B:3C:4D:5E",
+    "event_type": "password_change",
+    "timestamp": "2026-03-09T00:45:06",
+    "resource_accessed": "customer_financial_db",
+    "dns_query": "malicious.ru",
+    "file_path": "C:\\Temp\\evil.exe",
+    "file_hash": "abcd1234efgh5678ijkl",
+    "username": "priya.nair",
+    "hostname": "ATM-SERVER-12",
+    "geo": {
+        "country_name": "Russia"
+    },
+    "threat_intel_score": 91
+    },
+    {
+    "user_id": "user_767",
+    "source_ip_address": "101.148.43.88",
+    "destination_ip_address": "10.0.0.5",
+    "mac_address": "00:1A:2B:3C:4D:5E",
+    "event_type": "password_change",
+    "timestamp": "2026-03-09T00:45:06",
+    "resource_accessed": "customer_financial_db",
+    "dns_query": "malicious.ru",
+    "file_path": "C:\\Temp\\evil.exe",
+    "file_hash": "abcd1234efgh5678ijkl",
+    "username": "priya.nair",
+    "hostname": "ATM-SERVER-12",
+    "geo": {
+        "country_name": "Russia"
+    },
+    "threat_intel_score": 91
+    }
+]
