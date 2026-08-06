@@ -1,0 +1,58 @@
+Upgrade Plan for Current System (acira)
+
+1) Runtime and Dependency Management
+- Pin all Python dependencies in a requirements.txt (or migrate to pyproject.toml + lockfile).
+- Add automated dependency updates (e.g., Dependabot) and weekly security patch cadence.
+- Move configuration to environment variables and include a .env.example.
+
+2) Project Structure and Maintainability
+- Refactor into a clear app layout (e.g., app/, templates/, static/, tests/).
+- Introduce modular boundaries: routes/controllers, services/business logic, data access.
+- Add type hints across Python modules and enforce with mypy (or pyright).
+
+3) Code Quality and Standards
+- Add linting and formatting (ruff/flake8 + black) with pre-commit hooks.
+- Enforce import sorting and dead-code detection.
+- Add conventional commit guidance and PR templates.
+
+4) Testing Strategy
+- Add unit tests for core business logic and integration tests for web flows.
+- Use pytest with coverage thresholds (target >= 80% initially).
+- Add regression tests for known bugs and edge cases.
+
+5) Security Hardening
+- Add input validation/sanitization for all request paths.
+- Enable CSRF protection, secure session settings, and strict cookie flags.
+- Add secret scanning and SAST checks in CI.
+- Review authentication/authorization paths and least-privilege defaults.
+
+6) Performance and Scalability
+- Profile slow endpoints and optimize hot paths.
+- Add caching (template/data where appropriate) and DB query optimization.
+- Use background jobs for long-running tasks.
+- Add pagination for list views and lazy loading in templates.
+
+7) Frontend/UX Improvements (HTML portion)
+- Standardize template components and reusable partials.
+- Improve accessibility (semantic HTML, labels, keyboard navigation, ARIA where needed).
+- Minify/compress static assets and enable cache headers.
+
+8) Observability and Operations
+- Add structured logging with correlation/request IDs.
+- Add health checks (/healthz, /readyz) and error monitoring (Sentry-like tooling).
+- Define metrics (latency, error rate, throughput) and alert thresholds.
+
+9) CI/CD and Release Process
+- Add GitHub Actions pipeline: lint, test, security scan, build.
+- Block merges on failing checks and coverage drops.
+- Introduce staged deployments (dev -> staging -> prod) with rollback strategy.
+
+10) Documentation and Onboarding
+- Expand README with architecture, setup, runbook, and troubleshooting.
+- Add ADRs (Architecture Decision Records) for significant technical decisions.
+- Create contributor guide and local development workflow.
+
+Suggested 30/60/90-day Roadmap
+- 0-30 days: baseline linting/formatting, dependency pinning, CI for tests/lint, README upgrades.
+- 31-60 days: testing expansion, security hardening, modular refactor of critical paths.
+- 61-90 days: performance optimization, observability stack, staged release automation.
